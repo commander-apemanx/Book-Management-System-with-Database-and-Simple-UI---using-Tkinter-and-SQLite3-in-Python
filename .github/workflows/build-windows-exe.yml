@@ -1,0 +1,31 @@
+name: Build Windows exe
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*-windows"
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller>=6.0
+
+      - name: Build exe
+        run: python -m PyInstaller PersonalLibraryManager.spec
+
+      - name: Upload exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: PersonalLibraryManager-windows
+          path: dist/PersonalLibraryManager.exe

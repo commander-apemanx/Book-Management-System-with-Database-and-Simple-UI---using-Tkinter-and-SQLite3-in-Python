@@ -32,9 +32,19 @@ sudo apt install python3 python3-tk
 
 ## Run
 
+### From source (Linux / macOS / Windows)
+
 ```bash
 python3 book_manager.py
 ```
+
+### Windows executable
+
+Download `PersonalLibraryManager-windows-v1.1.0.exe` from the
+[v1.1.0-windows release](https://github.com/commander-apemanx/Personal-Library-Manager/releases/tag/v1.1.0-windows).
+Double-click to run — no Python install required. The SQLite database
+`mybooks.db` is created next to the `.exe`. Windows SmartScreen may warn
+because the binary is unsigned; choose **More info → Run anyway** if you trust it.
 
 The SQLite file appears beside the script:
 
