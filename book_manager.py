@@ -26,10 +26,9 @@ from typing import Any, Optional
 
 # Open Library asks for a descriptive User-Agent.
 _USER_AGENT = (
-    "BookManagementSystem/1.1 "
+    "PersonalLibraryManager/1.1 "
     "(commander-apemanx; "
-    "https://github.com/commander-apemanx/"
-    "Book-Management-System-with-Database-and-Simple-UI---using-Tkinter-and-SQLite3-in-Python)"
+    "https://github.com/commander-apemanx/Personal-Library-Manager)"
 )
 _LOOKUP_TIMEOUT_S = 15
 
@@ -182,7 +181,7 @@ class BookApp:
         self.db = BookDB()
         self.selected_id: Optional[int] = None
 
-        self.root.title("Book Management System")
+        self.root.title("Personal Library Manager")
         self.root.minsize(720, 480)
         self.root.geometry("820x520")
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)

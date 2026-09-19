@@ -39,7 +39,7 @@ python3 book_manager.py
 The SQLite file appears beside the script:
 
 ```text
-Book-Management-System/
+Personal-Library-Manager/
   book_manager.py
   mybooks.db          ← created on first run
 ```
