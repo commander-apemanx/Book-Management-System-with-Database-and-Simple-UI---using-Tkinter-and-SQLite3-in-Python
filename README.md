@@ -8,6 +8,7 @@ Simple desktop app for managing a small book library: **Title**, **Author**, and
 ## Features
 
 - Add, view, search, update, and delete books
+- **Lookup ISBN** — fills Title/Author from [Open Library](https://openlibrary.org/) (internet required; no API key)
 - Search matches only the fields you fill in (AND); empty fields are ignored
 - Update can change **Title**, **Author**, and **ISBN**
 - Table view with column headers (not a raw tuple list)
@@ -55,7 +56,10 @@ Copy `mybooks.db` with the app to move your library to another machine.
 | Update selected | Save edits to the selected row (including ISBN) |
 | Delete selected | Remove the selected row (asks for confirmation) |
 | Clear fields | Empty the form and clear selection |
+| Lookup ISBN | Fetch Title/Author from Open Library for the ISBN field |
 | Close | Quit (asks for confirmation) |
+
+Lookup fills the form only; click **Add entry** or **Update selected** to write to SQLite. Not every ISBN is in Open Library.
 
 ## Project layout
 

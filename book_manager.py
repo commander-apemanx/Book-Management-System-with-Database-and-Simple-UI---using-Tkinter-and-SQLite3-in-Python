@@ -11,12 +11,27 @@ Licensed under the Apache License, Version 2.0
 
 from __future__ import annotations
 
+import json
+import re
 import sqlite3
 import sys
+import threading
 import tkinter as tk
+import urllib.error
+import urllib.parse
+import urllib.request
 from pathlib import Path
 from tkinter import messagebox, ttk
 from typing import Any, Optional
+
+# Open Library asks for a descriptive User-Agent.
+_USER_AGENT = (
+    "BookManagementSystem/1.1 "
+    "(commander-apemanx; "
+    "https://github.com/commander-apemanx/"
+    "Book-Management-System-with-Database-and-Simple-UI---using-Tkinter-and-SQLite3-in-Python)"
+)
+_LOOKUP_TIMEOUT_S = 15
 
 
 def database_path() -> Path:
@@ -26,6 +41,65 @@ def database_path() -> Path:
     else:
         base = Path(__file__).resolve().parent
     return base / "mybooks.db"
+
+
+def normalize_isbn(raw: str) -> str:
+    """Strip spaces/hyphens; keep digits and trailing ISBN-10 X."""
+    cleaned = re.sub(r"[\s-]+", "", raw.strip()).upper()
+    if re.fullmatch(r"\d{9}[\dX]|\d{13}", cleaned):
+        return cleaned
+    return ""
+
+
+def _http_get_json(url: str) -> Any:
+    req = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT})
+    with urllib.request.urlopen(req, timeout=_LOOKUP_TIMEOUT_S) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def lookup_isbn_openlibrary(isbn: str) -> dict[str, str]:
+    """Fetch title/author for an ISBN via Open Library (no API key).
+
+    Uses ``/isbn/{isbn}.json`` and resolves author name records.
+    Returns dict with keys title, author, isbn.
+    Raises ValueError if not found / invalid; URLError/OSError on network errors.
+    """
+    isbn = normalize_isbn(isbn)
+    if not isbn:
+        raise ValueError("ISBN must be 10 or 13 characters (digits, optional final X).")
+
+    url = f"https://openlibrary.org/isbn/{urllib.parse.quote(isbn)}.json"
+    try:
+        book = _http_get_json(url)
+    except urllib.error.HTTPError as exc:
+        if exc.code == 404:
+            raise ValueError(f"No Open Library record for ISBN {isbn}.") from exc
+        raise
+
+    title = (book.get("title") or "").strip()
+    subtitle = (book.get("subtitle") or "").strip()
+    if title and subtitle:
+        title = f"{title}: {subtitle}"
+    if not title:
+        raise ValueError(f"Open Library entry for ISBN {isbn} has no title.")
+
+    names: list[str] = []
+    for entry in (book.get("authors") or [])[:5]:
+        if not isinstance(entry, dict):
+            continue
+        key = (entry.get("key") or "").strip()
+        if not key:
+            continue
+        try:
+            author_doc = _http_get_json(f"https://openlibrary.org{key}.json")
+        except Exception:
+            continue
+        name = (author_doc.get("name") or "").strip()
+        if name:
+            names.append(name)
+
+    author = ", ".join(names) if names else "Unknown"
+    return {"title": title, "author": author, "isbn": isbn}
 
 
 class BookDB:
@@ -158,6 +232,11 @@ class BookApp:
         self.isbn_entry = ttk.Entry(form, textvariable=self.isbn_var)
         self.isbn_entry.grid(row=1, column=1, sticky="ew", padx=(0, 12), pady=(6, 0))
 
+        self.lookup_btn = ttk.Button(
+            form, text="Lookup ISBN", width=14, command=self.lookup_isbn
+        )
+        self.lookup_btn.grid(row=1, column=2, columnspan=2, sticky="w", pady=(6, 0))
+
         # --- list + buttons ---
         body = ttk.Frame(main)
         body.grid(row=1, column=0, sticky="nsew")
@@ -267,6 +346,53 @@ class BookApp:
         self.title_var.set(values[1])
         self.author_var.set(values[2])
         self.isbn_var.set(values[3])
+
+    def lookup_isbn(self) -> None:
+        """Fetch Title/Author from Open Library for the ISBN in the form."""
+        raw = self.isbn_var.get()
+        isbn = normalize_isbn(raw)
+        if not isbn:
+            messagebox.showwarning(
+                "ISBN required",
+                "Enter a valid ISBN-10 or ISBN-13 (hyphens optional), then click Lookup ISBN.",
+                parent=self.root,
+            )
+            return
+
+        self.lookup_btn.configure(state="disabled")
+        self.set_status(f"Looking up ISBN {isbn} on Open Library…")
+
+        def work() -> None:
+            try:
+                info = lookup_isbn_openlibrary(isbn)
+                self.root.after(0, lambda: self._apply_isbn_lookup(info))
+            except Exception as exc:  # noqa: BLE001 — show any lookup failure to the user
+                self.root.after(0, lambda: self._isbn_lookup_failed(isbn, exc))
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _apply_isbn_lookup(self, info: dict[str, str]) -> None:
+        self.lookup_btn.configure(state="normal")
+        self.isbn_var.set(info["isbn"])
+        self.title_var.set(info["title"])
+        self.author_var.set(info["author"])
+        self.set_status(
+            f"Lookup OK — filled Title/Author from Open Library. "
+            f"Click Add or Update to save."
+        )
+
+    def _isbn_lookup_failed(self, isbn: str, exc: Exception) -> None:
+        self.lookup_btn.configure(state="normal")
+        if isinstance(exc, ValueError):
+            msg = str(exc)
+        elif isinstance(exc, urllib.error.HTTPError):
+            msg = f"Open Library HTTP {exc.code}."
+        elif isinstance(exc, urllib.error.URLError):
+            msg = "Network error — check your internet connection."
+        else:
+            msg = f"{type(exc).__name__}: {exc}"
+        self.set_status(f"Lookup failed for ISBN {isbn}.")
+        messagebox.showerror("ISBN lookup failed", msg, parent=self.root)
 
     # --- commands ---
 
