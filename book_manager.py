@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Book Management System — Tkinter UI + SQLite database.
+Personal Library Manager — Tkinter UI + SQLite database.
 
 Simple local library CRUD: add, view, search, update, delete books.
 Database file: mybooks.db (stored next to this script).

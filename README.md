@@ -1,6 +1,6 @@
-# Book Management System
+# Personal Library Manager
 
-Simple desktop app for managing a small book library: **Title**, **Author**, and **ISBN**, stored in a portable **SQLite** database with a **Tkinter** UI.
+Simple desktop app for managing a small personal book library: **Title**, **Author**, and **ISBN**, stored in a portable **SQLite** database with a **Tkinter** UI.
 
 **Author:** [commander-apemanx](https://github.com/commander-apemanx)  
 **License:** [Apache License 2.0](LICENSE)
