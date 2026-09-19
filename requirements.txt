@@ -1,0 +1,3 @@
+# Python 3.10+ — runtime uses the standard library only:
+#   tkinter, sqlite3
+# On Debian/Ubuntu/Mint you may need: sudo apt install python3-tk

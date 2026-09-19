@@ -1,35 +1,74 @@
-# Book-Management-System-with-Database-and-Simple-UI---using-Tkinter-and-SQLite3-in-Python
-<h3>INTRODUCTION</h3><br>
+# Book Management System
 
-The mini project ‘Book Management system’ is a sample project for managing book details. The project aims at developing a book management system using the Python language that enables an organization to maintain its book library. <br>
-The project demonstrates the creation of a Graphical User Interface of the system, using the Tkinter Graphics library of Python.<br>
-The application uses basic Python functions to generate menu options, title boxes, input message boxes, list and print text on the screen. <br>
-To fetch information from the user and to perform various tasks on that information  based on the command option selected, various functions have been created. <br>
-The application uses tuples, data structure to display the result of all the operations that are to be performed on the data.<br>
+Simple desktop app for managing a small book library: **Title**, **Author**, and **ISBN**, stored in a portable **SQLite** database with a **Tkinter** UI.
 
-<h3>PROBLEM STATEMENT</h3><br>
+**Author:** [commander-apemanx](https://github.com/commander-apemanx)  
+**License:** [Apache License 2.0](LICENSE)
 
-We have constructed a database using a book management system. This database consists of details about books: book names, author of the book and the issue number(which can’t be changed). <br>
-The management system is providing the user or member of an organization to perform the basic operation database/SQL operations on the data stored in the database.<br>
-1.	Add Entry – perform the insert operation of adding a new row or tuple into the relation within the database. This tuple will consist of the entries given by the user consisting of the book name, author and issue number. <br>
-     SQL—>(“INSERT INTO book VALUES (NULL,?,?,?)", (title, author, isbn,))<br>
+## Features
 
-2.	View all – performs the search * from table operation. It displays all the rows that are present in the table. <br>
-     SQL—>("SELECT * FROM book”)<br>
+- Add, view, search, update, and delete books
+- Search matches only the fields you fill in (AND); empty fields are ignored
+- Update can change **Title**, **Author**, and **ISBN**
+- Table view with column headers (not a raw tuple list)
+- Database file `mybooks.db` is created **next to the script** (easy to copy/backup)
+- Confirm before delete; Title and Author are required
 
-3.	Search entry – Given certain values of the book name and author name it searches and displays all the entries having those values. <br>
-     SQL—>("SELECT * FROM book WHERE title=? OR author=?", (title, author,))<br>
+## Requirements
 
-4.	Update – Given a new value for a row, this SQL operation is going to update the value in the table.<br>
-     SQL—>"UPDATE book SET title=?, author=? WHERE id=?", (title, author, id,))<br>
+| Item | Notes |
+| --- | --- |
+| Python | 3.10 or newer |
+| tkinter | Standard library (`python3-tk` on Debian/Ubuntu/Mint) |
+| sqlite3 | Standard library |
 
-5.	Delete – performs deletion of the row that is selected from the table based on the value of the index of the selected row.<br>
-     SQL—>("DELETE FROM book WHERE id=?", (id,))<br>
- 
-<h3>PROGRAM REQUIREMENTS AND MODULES</h3><br>
+No pip packages are required.
 
-1.	SQLite3 module: It provides an SQL interface compliant with the DB-API 2.0 specification. You do not need to install this module separately because it is shipped by default along with Python version 2.5.x onwards.<br>
-2.	Tkinter: tkinter is most commonly used GUI method IN Python. It is a standard Python interface to the Tk GUI toolkit shipped with Python. Python with tkinter outputs the fastest and easiest way to create the GUI applications. <br>
-3.	Label(): display area for a short text <br>
-4.	Button(): implementation of "push" button.<br>
-5.	Window(): Its the space where we show all the outputs. Window is a top-level frame with a title and a border. The size of the frame includes any area designated for the border.<br>
+```bash
+# Debian / Ubuntu / Mint
+sudo apt install python3 python3-tk
+```
+
+## Run
+
+```bash
+python3 book_manager.py
+```
+
+The SQLite file appears beside the script:
+
+```text
+Book-Management-System/
+  book_manager.py
+  mybooks.db          ← created on first run
+```
+
+Copy `mybooks.db` with the app to move your library to another machine.
+
+## Operations
+
+| Button | Action |
+| --- | --- |
+| View all | Show every book |
+| Search | Find by Title and/or Author (partial match) |
+| Add entry | Insert a new row |
+| Update selected | Save edits to the selected row (including ISBN) |
+| Delete selected | Remove the selected row (asks for confirmation) |
+| Clear fields | Empty the form and clear selection |
+| Close | Quit (asks for confirmation) |
+
+## Project layout
+
+| File | Role |
+| --- | --- |
+| `book_manager.py` | Application |
+| `requirements.txt` | Notes (stdlib only) |
+| `LICENSE` | Apache-2.0 |
+| `NOTICE` | Attribution |
+| `README.md` | This file |
+
+The older single-file script with spaces in the filename has been replaced by `book_manager.py`.
+
+## Disclaimer
+
+This is a small educational / personal library tool, not a multi-user library management suite.
